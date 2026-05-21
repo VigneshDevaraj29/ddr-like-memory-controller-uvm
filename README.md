@@ -54,11 +54,17 @@ For example, a burst write with:
 ```text
 addr = 0x10
 burst_len = 3
+```
 
 writes to:
 
+```text
 0x10, 0x11, 0x12, 0x13
-UVM Testbench Architecture
+```
+
+## UVM Testbench Architecture
+
+```text
 mem_base_test
    └── mem_env
         ├── mem_agent
@@ -67,77 +73,98 @@ mem_base_test
         │    └── mem_monitor
         ├── mem_scoreboard
         └── mem_coverage
-Verification Components
-Sequence Item
+```
+
+## Verification Components
+
+### Sequence Item
 
 Defines memory transaction fields such as:
 
-write_en
-addr
-wdata
-rdata
-bank
-burst_len
-Driver
+- `write_en`
+- `addr`
+- `wdata`
+- `rdata`
+- `bank`
+- `burst_len`
+
+### Driver
 
 Drives transaction-level requests onto the DUT interface using ready/valid handshaking.
 
-Monitor
+### Monitor
 
 Captures read/write transactions from the DUT interface, including multi-beat burst transfers.
 
-Scoreboard
+### Scoreboard
 
 Maintains a reference memory model and checks read data against expected write data.
 
-Functional Coverage
+### Functional Coverage
 
 Tracks coverage for:
 
-Read/write transactions
-Bank selection
-Burst length
-Address range
-Read/write and bank cross coverage
-Assertions
+- Read/write transactions
+- Bank selection
+- Burst length
+- Address range
+- Read/write and bank cross coverage
+
+### Assertions
 
 SystemVerilog assertions check protocol behavior such as:
 
-No unknown valid
-No unknown ready
-No rvalid during reset
-Address known during valid transaction
-Bank known during valid transaction
-Read transaction produces rvalid
-Test Cases
-Test Name	Description
-mem_write_read_test	Directed randomized write-read verification
-mem_reset_test	Reset stress test with scoreboard synchronization
-mem_burst_stress_test	Back-to-back burst read/write stress test
-Regression
+- No unknown `valid`
+- No unknown `ready`
+- No `rvalid` during reset
+- Address known during valid transaction
+- Bank known during valid transaction
+- Read transaction produces `rvalid`
+
+## Test Cases
+
+| Test Name | Description |
+|---|---|
+| `mem_write_read_test` | Directed randomized write-read verification |
+| `mem_reset_test` | Reset stress test with scoreboard synchronization |
+| `mem_burst_stress_test` | Back-to-back burst read/write stress test |
+
+## Regression
 
 Run a single test:
 
+```bash
 cd sim
 ./run.sh mem_write_read_test
 ./run.sh mem_reset_test
 ./run.sh mem_burst_stress_test
+```
 
 Run full regression:
 
+```bash
 cd sim
 ./regress.sh
+```
 
 Expected result:
 
+```text
 UVM_ERROR : 0
 UVM_FATAL : 0
+```
 
 Regression logs are saved in:
 
+```text
 sim/logs/
-Project Structure
+```
+
+## Project Structure
+
+```text
 ddr_like_mem_ctrl_uvm/
+├── README.md
 ├── docs/
 │   └── memory_controller_spec.md
 ├── rtl/
@@ -170,18 +197,23 @@ ddr_like_mem_ctrl_uvm/
 │       ├── mem_write_read_test.sv
 │       ├── mem_reset_test.sv
 │       └── mem_burst_stress_test.sv
-Tools Used
-SystemVerilog
-UVM
-Synopsys VCS
-Linux shell scripting
-VS Code
-Key Verification Results
-Verified randomized read/write transactions
-Verified burst read/write transfers across consecutive addresses
-Verified multi-cycle burst behavior using burst_len
-Verified reset recovery behavior
-Verified back-to-back burst stress scenarios
-Achieved clean regression with 0 UVM errors and 0 UVM fatal errors
-Debugged and fixed scoreboard synchronization during reset
-Debugged and fixed burst address boundary overflow through constrained stimulus
+```
+
+## Tools Used
+
+- SystemVerilog
+- UVM
+- Synopsys VCS
+- Linux shell scripting
+- VS Code
+
+## Key Verification Results
+
+- Verified randomized read/write transactions
+- Verified burst read/write transfers across consecutive addresses
+- Verified multi-cycle burst behavior using `burst_len`
+- Verified reset recovery behavior
+- Verified back-to-back burst stress scenarios
+- Achieved clean regression with 0 UVM errors and 0 UVM fatal errors
+- Debugged and fixed scoreboard synchronization during reset
+- Debugged and fixed burst address boundary overflow through constrained stimulus
