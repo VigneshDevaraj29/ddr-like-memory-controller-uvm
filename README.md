@@ -160,6 +160,16 @@ Regression logs are saved in:
 sim/logs/
 ```
 
+Regression Results + Screenshots:
+
+UVM_Report_Summary:
+
+![uvm_report_summary](images/uvm_report_summary.png)
+
+Regression_logs:
+
+![regression_logs](images/regression_logs.png)
+
 ## Project Structure
 
 ```text
