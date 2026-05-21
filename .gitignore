@@ -1,0 +1,21 @@
+# VCS generated files
+simv
+simv.daidir/
+csrc/
+*.vpd
+*.vcd
+*.fsdb
+ucli.key
+vc_hdrs.h
+*.log
+
+# Simulation logs
+sim/logs/
+
+# Core dumps
+core*
+*.core
+
+# Editor/system files
+.vscode/
+.DS_Store
