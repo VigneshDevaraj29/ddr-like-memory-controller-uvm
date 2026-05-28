@@ -84,22 +84,20 @@ module ddr_like_mem_ctrl #(
 
         WRITE_BURST: begin
           beat_count <= beat_count + 1;
-
-          mem[bank_reg][base_addr + beat_count + 1] <= wdata_reg + beat_count + 1;
-
-          if (beat_count + 1 == burst_len_reg) begin
-            state <= IDLE;
+          mem[bank_reg][base_addr + beat_count + 1] <= wdata_reg;  // FIX: removed artificial data increment
+          if (beat_count >= burst_len_reg - 1) begin               // FIX: changed == to >= to prevent early exit
+            state      <= IDLE;
+            beat_count <= '0;                                       // FIX: clean reset of beat_count on exit
           end
         end
 
         READ_BURST: begin
           beat_count <= beat_count + 1;
-
           rdata  <= mem[bank_reg][base_addr + beat_count + 1];
           rvalid <= 1'b1;
-
-          if (beat_count + 1 == burst_len_reg) begin
-            state <= IDLE;
+          if (beat_count >= burst_len_reg - 1) begin               // FIX: changed == to >= to prevent early exit
+            state      <= IDLE;
+            beat_count <= '0;                                       // FIX: clean reset of beat_count on exit
           end
         end
 
@@ -110,5 +108,59 @@ module ddr_like_mem_ctrl #(
       endcase
     end
   end
+
+// =============================================
+  // ASSERTIONS
+  // =============================================
+
+  // 1. ready must only be asserted in IDLE state
+  property p_ready_only_in_idle;
+    @(posedge clk) disable iff (!rst_n)
+    ready |-> (state == IDLE);
+  endproperty
+  assert property (p_ready_only_in_idle)
+    else $error("ASSERT: ready asserted outside IDLE state");
+
+  // 2. rvalid must never be asserted during reset
+  property p_no_rvalid_during_reset;
+    @(posedge clk)
+    (!rst_n) |-> (!rvalid);
+  endproperty
+  assert property (p_no_rvalid_during_reset)
+    else $error("ASSERT: rvalid asserted during reset");
+
+  // 3. valid must never be X or Z
+  property p_valid_known;
+    @(posedge clk) disable iff (!rst_n)
+    !$isunknown(valid);
+  endproperty
+  assert property (p_valid_known)
+    else $error("ASSERT: valid is X or Z");
+
+  // 4. addr must be known during a valid transaction
+  property p_addr_known_when_valid;
+    @(posedge clk) disable iff (!rst_n)
+    (valid && ready) |-> !$isunknown(addr);
+  endproperty
+  assert property (p_addr_known_when_valid)
+    else $error("ASSERT: addr is X or Z during valid transaction");
+
+  // 5. every read command must eventually produce rvalid
+  //    ##[0:10] covers same-cycle rvalid for single-word reads
+  //    and delayed rvalid for burst reads
+  property p_read_gets_rvalid;
+    @(posedge clk) disable iff (!rst_n)
+    (valid && ready && !write_en) |-> ##[0:10] rvalid;
+  endproperty
+  assert property (p_read_gets_rvalid)
+    else $error("ASSERT: rvalid never came after read command");
+
+  // 6. burst_len must be within valid range 0-3
+  property p_valid_burst_len;
+    @(posedge clk) disable iff (!rst_n)
+    (valid && ready) |-> (burst_len inside {[0:3]});
+  endproperty
+  assert property (p_valid_burst_len)
+    else $error("ASSERT: burst_len out of valid range");
 
 endmodule
