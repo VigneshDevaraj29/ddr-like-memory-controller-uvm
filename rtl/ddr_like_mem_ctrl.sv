@@ -84,10 +84,10 @@ module ddr_like_mem_ctrl #(
 
         WRITE_BURST: begin
           beat_count <= beat_count + 1;
-          mem[bank_reg][base_addr + beat_count + 1] <= wdata_reg;  // FIX: removed artificial data increment
-          if (beat_count >= burst_len_reg - 1) begin               // FIX: changed == to >= to prevent early exit
+          mem[bank_reg][base_addr + beat_count + 1] <= wdata_reg;  
+          if (beat_count >= burst_len_reg - 1) begin               
             state      <= IDLE;
-            beat_count <= '0;                                       // FIX: clean reset of beat_count on exit
+            beat_count <= '0;                                       
           end
         end
 
@@ -95,9 +95,9 @@ module ddr_like_mem_ctrl #(
           beat_count <= beat_count + 1;
           rdata  <= mem[bank_reg][base_addr + beat_count + 1];
           rvalid <= 1'b1;
-          if (beat_count >= burst_len_reg - 1) begin               // FIX: changed == to >= to prevent early exit
+          if (beat_count >= burst_len_reg - 1) begin               
             state      <= IDLE;
-            beat_count <= '0;                                       // FIX: clean reset of beat_count on exit
+            beat_count <= '0;                                       
           end
         end
 
